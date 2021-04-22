@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4">
+    <h3 class="title">Welcome, {{ name }}!</h3>
+    <h3 class="subtitle">Convert your currencies here:</h3>
+    <div class="box">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% autoescape false %}
+            <div class="notification is-danger">
+                {{ messages[0] }}
+            </div>
+            {% endautoescape %}
+        {% endif %}
+        {% endwith %}
+        <form method="POST" action="/convert">
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="amount" placeholder={{ amount }} autofocus="">
+                </div>
+            </div>
+
+            From: 
+            <select name="currency_from">
+                <option value="{{cur_from}}" selected>{{cur_from}}</option>
+                {% for currency in currencies[1:] %}
+                <option value="{{currency}}">{{currency}}</option>
+                {% endfor %}
+            </select>
+            <br>To:
+            <select name="currency_to">
+                <option value="{{cur_to}}" selected>{{cur_to}}</option>
+                {% for currency in currencies[1:] %}
+                <option value="{{currency}}">{{currency}}</option>
+                {% endfor %}
+            </select>
+            <br>
+            <button class="button is-block is-info is-large is-fullwidth">Convert</button>
+        </form>
+        {% if result %}
+        <br>Result: {{result}}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
