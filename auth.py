@@ -3,8 +3,35 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from models import User
 from app import db
 from flask_login import login_user, logout_user, login_required
+import validators, re
 
 auth = Blueprint('auth', __name__)
+
+def password_check(password):
+    """
+    Verify the strength of 'password'
+    Returns a dict indicating if the password meets the following criteria
+        8 characters length or more
+        1 digit or more
+        1 symbol or more
+        1 uppercase letter or more
+        1 lowercase letter or more
+    """
+
+    length_error = len(password) < 8
+    lowercase_error = re.search(r"[a-z]", password) is None
+    uppercase_error = re.search(r"[A-Z]", password) is None
+    digit_error = re.search(r"\d", password) is None
+    symbol_error = re.search(r"\W", password) is None
+    
+    password_ok = not (length_error or digit_error or uppercase_error or lowercase_error or symbol_error)
+
+    return {'password_ok'     : password_ok,
+            'length_error'    : length_error,
+            'lowercase_error' : lowercase_error,
+            'uppercase_error' : uppercase_error,
+            'digit_error'     : digit_error,
+            'symbol_error'    : symbol_error}
 
 @auth.route('/login')
 def login():
@@ -41,10 +68,32 @@ def signup_post():
     name = request.form.get('name')
     password = request.form.get('password')
 
+    # Validate given email address
+    if not validators.email(email):
+        flash('Invalid email address.')
+        return redirect(url_for('auth.signup'))
+
     user = User.query.filter_by(email=email).first() # if this returns a user, then the email already exists in database
 
     if user: # if a user is found, we want to redirect back to signup page so user can try again
-        flash('Email address already exists')
+        flash('A user with this email address already exists.')
+        return redirect(url_for('auth.signup'))
+    
+    # Check password strength
+    check = password_check(password)
+    if not check['password_ok']:
+        error = 'Your password is not strong enough.<br>Passwords must contain at least:'
+        if check['length_error']:
+            error += '<br>8 characters'
+        if check['lowercase_error']:
+            error += '<br>1 lowercase letter'
+        if check['uppercase_error']:
+            error += '<br>1 uppercase letter'
+        if check['digit_error']:
+            error += '<br>1 digit'
+        if check['symbol_error']:
+            error += '<br>1 symbol'
+        flash(error)
         return redirect(url_for('auth.signup'))
 
     # create a new user with the form data. Hash the password so the plaintext version isn't saved.
