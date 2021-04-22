@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, abort, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 import json, codecs
@@ -31,6 +31,11 @@ def create_app():
     def load_user(user_id):
         # since the user_id is just the primary key of our user table, use it in the query for the user
         return User.query.get(int(user_id))
+    
+    @app.before_request
+    def restrict_ip_addresses():
+        if not request.remote_addr in config['trusted_ips']:
+            abort(403) # Forbidden
 
     # blueprint for auth routes in our app
     from auth import auth as auth_blueprint

@@ -1,4 +1,4 @@
-# LetsTalk MVC Assignment
+# Let's Talk MVC Assignment
 
 This application is written for an assignment by Let's Talk.
 
@@ -13,3 +13,9 @@ From there, I intend to add further functionality to satisfy the requirements of
 * [Python](https://www.python.org/)
 * [Flask](https://flask.palletsprojects.com/en/1.1.x/)
 * [SQLite](https://www.sqlite.org/index.html)
+
+## Getting started
+
+In order to use the code from this repository, follow these steps:
+
+* TODO
