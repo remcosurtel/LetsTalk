@@ -1,14 +1,21 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
-from models import Currency
-from app import db
+from models import User, Currency
+from app import db, config_load
 from flask_login import login_required, current_user
-import json, codecs
+import validators, json
 
 main = Blueprint('main', __name__)
 
 def is_float(x):
     try:
         float(x)
+        return True
+    except:
+        return False
+
+def is_int(x):
+    try:
+        int(x)
         return True
     except:
         return False
@@ -26,7 +33,7 @@ def convert():
     for cur in all_currencies:
         currencies.append(cur.code)
 
-    return render_template('convert.html', name=current_user.name, currencies=currencies, result=False, amount='Amount', cur_from='USD', cur_to='USD')
+    return render_template('convert.html', currencies=currencies, result=False, amount='Amount', cur_from='USD', cur_to='USD')
 
 @main.route('/convert', methods=['POST'])
 @login_required
@@ -61,4 +68,71 @@ def convert_post():
     for cur in all_currencies:
         currencies.append(cur.code)
 
-    return render_template('convert.html', name=current_user.name, currencies=currencies, result=result, amount=amount, cur_from=cur_from.code, cur_to=cur_to.code)
+    return render_template('convert.html', currencies=currencies, result=result, amount=amount, cur_from=cur_from.code, cur_to=cur_to.code)
+
+@main.route('/admin')
+@login_required
+def admin():
+    # If user is not an admin, redirect to homepage
+    if not current_user.admin:
+        return redirect(url_for('main.index'))
+    
+    return render_template('admin.html')
+
+@main.route('/admin_remove_user', methods=['POST'])
+@login_required
+def remove_user():
+    # If user is not an admin, redirect to homepage
+    if not current_user.admin:
+        return redirect(url_for('main.index'))
+    
+    user_id = request.form.get('user')
+    if not is_int(user_id):
+        flash('Invalid user ID.')
+        return redirect(url_for('main.admin'))
+    user_id = int(user_id)
+    
+    user = User.query.filter_by(id=user_id).first()
+
+    if not user:
+        flash('User does not exist.')
+        return redirect(url_for('main.admin'))
+    
+    if user.admin:
+        flash('You cannot remove other admins.')
+        return redirect(url_for('main.admin'))
+    
+    user.delete()
+    db.session.commit()
+    
+    return render_template('admin.html', removed_user=user_id)
+
+@main.route('/admin_toggle_ip', methods=['POST'])
+@login_required
+def toggle_ip():
+    # If user is not an admin, redirect to homepage
+    if not current_user.admin:
+        return redirect(url_for('main.index'))
+    
+    ip_address = request.form.get('ip')
+
+    if not validators.ip_address.ipv4(ip_address) and not validators.ip_address.ipv6(ip_address):
+        flash('Invalid IP address.')
+        return redirect(url_for('main.admin'))
+    
+    config = config_load()
+
+    added = True
+    if ip_address in config['trusted_ips']:
+        config['trusted_ips'].remove(ip_address)
+        added = False
+    else:
+        config['trusted_ips'].append(ip_address)
+    
+    with open('config.json', 'w', encoding='utf-8') as doc:
+        json.dump(config, doc, ensure_ascii=False, indent=4)
+    
+    if added:
+        return render_template('admin.html', removed_ip=False, added_ip=True, ip=ip_address)
+    else:
+        return render_template('admin.html', removed_ip=True, added_ip=False, ip=ip_address)

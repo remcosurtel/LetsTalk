@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4">
+    <h3 class="title">Welcome, {{ current_user.name }}!</h3>
+    <h3 class="subtitle">You are an admin.</h3>
+    <div class="box">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% autoescape false %}
+            <div class="notification is-danger">
+                {{ messages[0] }}
+            </div>
+            {% endautoescape %}
+        {% endif %}
+        {% endwith %}
+        <form method="POST" action="/admin_remove_user">
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="user" placeholder="User ID" autofocus="">
+                </div>
+            </div>
+            <button class="button is-block is-info is-large is-fullwidth">Remove User</button>
+        </form>
+        <form method="POST" action="/admin_toggle_ip">
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="ip" placeholder="IP Address" autofocus="">
+                </div>
+            </div>
+            <button class="button is-block is-info is-large is-fullwidth">Toggle IP</button>
+        </form>
+        {% if removed_user %}
+        <br>Removed user: {{ user_id }}
+        {% endif %}
+        {% if removed_ip %}
+        <br>Removed IP address: {{ ip }}
+        {% endif %}
+        {% if added_ip %}
+        <br>Added IP address: {{ ip }}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
