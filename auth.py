@@ -33,10 +33,16 @@ def password_check(password):
             'digit_error'     : digit_error,
             'symbol_error'    : symbol_error}
 
+'''
+Displays the login page.
+'''
 @auth.route('/login')
 def login():
     return render_template('login.html')
 
+'''
+Allows users to log in.
+'''
 @auth.route('/login', methods=['POST'])
 def login_post():
     email = request.form.get('email')
@@ -58,10 +64,17 @@ def login_post():
     login_user(user, remember=remember)
     return redirect(url_for('main.convert'))
 
+'''
+Displays the sign up page.
+'''
 @auth.route('/signup')
 def signup():
     return render_template('signup.html')
 
+'''
+Allows users to sign up.
+Validates user input: both email and password.
+'''
 @auth.route('/signup', methods=['POST'])
 def signup_post():
     email = request.form.get('email')
@@ -105,6 +118,9 @@ def signup_post():
 
     return redirect(url_for('auth.login'))
 
+'''
+Allows users to log out.
+'''
 @auth.route('/logout')
 @login_required
 def logout():

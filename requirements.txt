@@ -1,0 +1,5 @@
+flask==1.1.2
+flask-sqlalchemy==2.5.1
+flask-login==0.5.0
+requests==2.25.1
+validators==0.18.2

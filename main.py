@@ -24,6 +24,9 @@ def is_int(x):
 def index():
     return render_template('index.html')
 
+'''
+Displays the convert page.
+'''
 @main.route('/convert')
 @login_required
 def convert():
@@ -35,6 +38,11 @@ def convert():
 
     return render_template('convert.html', currencies=currencies, result=False, amount='Amount', cur_from='USD', cur_to='USD')
 
+'''
+Converts a given amount of some currency to another currency.
+All conversions are performed by first converting to USD.
+In this way, only 1 value needs to be stored for each currency.
+'''
 @main.route('/convert', methods=['POST'])
 @login_required
 def convert_post():
@@ -70,6 +78,9 @@ def convert_post():
 
     return render_template('convert.html', currencies=currencies, result=result, amount=amount, cur_from=cur_from.code, cur_to=cur_to.code)
 
+'''
+Displays the admin page.
+'''
 @main.route('/admin')
 @login_required
 def admin():
@@ -79,6 +90,9 @@ def admin():
     
     return render_template('admin.html')
 
+'''
+Lets admins remove a user by their ID.
+'''
 @main.route('/admin_remove_user', methods=['POST'])
 @login_required
 def remove_user():
@@ -107,6 +121,9 @@ def remove_user():
     
     return render_template('admin.html', removed_user=user_id)
 
+'''
+Lets admins add/remove trusted IP addresses.
+'''
 @main.route('/admin_toggle_ip', methods=['POST'])
 @login_required
 def toggle_ip():
