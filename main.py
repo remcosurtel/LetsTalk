@@ -1,10 +1,11 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from models import User, Currency
-from app import db, config_load
+from app import db, config_load, create_app
 from flask_login import login_required, current_user
 import validators, json
 
 main = Blueprint('main', __name__)
+app = create_app()
 
 def is_float(x):
     try:
@@ -118,7 +119,9 @@ def remove_user():
     
     user.delete()
     db.session.commit()
-    
+
+    app.logger.info(f'Admin {current_user.id} removed user: {user_id}')
+
     return render_template('admin.html', removed_user=user_id)
 
 '''
@@ -150,6 +153,8 @@ def toggle_ip():
         json.dump(config, doc, ensure_ascii=False, indent=4)
     
     if added:
+        app.logger.info(f'Admin {current_user.id} added trusted IP: {ip_address}')
         return render_template('admin.html', removed_ip=False, added_ip=True, ip=ip_address)
     else:
+        app.logger.info(f'Admin {current_user.id} removed trusted IP: {ip_address}')
         return render_template('admin.html', removed_ip=True, added_ip=False, ip=ip_address)

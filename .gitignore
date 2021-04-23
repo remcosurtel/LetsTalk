@@ -1,5 +1,6 @@
-# Data - json files with sensitive info
+# Data - json/txt files with sensitive info
 *.json
+*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

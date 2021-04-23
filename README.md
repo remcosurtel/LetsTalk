@@ -35,7 +35,8 @@ pip install -r requirements.txt
  "database": "sqlite:///db.sqlite",
  "trusted_ips": ["127.0.0.1"]}
 ```
-* Open a Python REPL by simply typing `python` in PowerShell and pressing enter.
+* Create an empty file named `log.txt`
+* Open a Python REPL by simply typing `python` in PowerShell and pressing enter
 * Execute the following two lines to initialize the database:
 ```python
 from app import db, create_app

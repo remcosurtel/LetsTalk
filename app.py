@@ -1,10 +1,13 @@
 from flask import Flask, abort, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-import json, codecs
+import json, codecs, logging
 
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
+
+# Configure logging
+logging.basicConfig(filename='log.txt', level=logging.DEBUG)
 
 # Load config file with necessary information
 def config_load():

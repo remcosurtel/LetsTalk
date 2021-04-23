@@ -1,11 +1,12 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import User
-from app import db
-from flask_login import login_user, logout_user, login_required
+from app import db, create_app
+from flask_login import login_user, logout_user, login_required, current_user
 import validators, re
 
 auth = Blueprint('auth', __name__)
+app = create_app()
 
 def password_check(password):
     """
@@ -62,6 +63,7 @@ def login_post():
 
     # if the above checks pass, then we know the user has the right credentials
     login_user(user, remember=remember)
+    app.logger.info(f'User logged in: {user.id}')
     return redirect(url_for('main.convert'))
 
 '''
@@ -116,6 +118,8 @@ def signup_post():
     db.session.add(new_user)
     db.session.commit()
 
+    app.logger.info(f'User signed up: {new_user.id}')
+
     return redirect(url_for('auth.login'))
 
 '''
@@ -124,5 +128,6 @@ Allows users to log out.
 @auth.route('/logout')
 @login_required
 def logout():
+    app.logger.info(f'User logged out: {current_user.id}')
     logout_user()
     return redirect(url_for('main.index'))
